@@ -16,24 +16,37 @@ get_ids () {
 	echo "$(manila $LIST_COMMAND $3 --columns id,is_default | tail -n +4 | head -n -1 | awk "$IGNORE_IDS")"
 }
 
-
 # Delete the given ids
 # param: $1 the manila delete command
 # param: $2 list of string ids
-# param: $3 any extra param
 delete_ids () {
 	DELETE_COMMAND="$1"
 	shift
 	local arr=("$@")
 	for ID in "${arr[@]}"; do
 		echo -n "-> Deleting the $ID... "
-		manila $DELETE_COMMAND $3 $ID
+		manila $DELETE_COMMAND $ID
 		if [ "$?" = "0" ]; then
 			echo "It has been deleted!"
 		fi
 	done
 }
 
+# Delete the given ids
+# param: $1 the manila delete command
+# param: $2 list of string ids
+delete_force_ids () {
+	DELETE_COMMAND="$1"
+	shift
+	local arr=("$@")
+	for ID in "${arr[@]}"; do
+		echo -n "-> Deleting the $ID... "
+		manila $DELETE_COMMAND --force $ID
+		if [ "$?" = "0" ]; then
+			echo "It has been deleted!"
+		fi
+	done
+}
 
 # Delete share-types
 # param: $1 skiped ids
@@ -140,8 +153,7 @@ delete_groups () {
 	fi
 
 	COMMAND="share-group-delete"
-	EXTRA_PARAM="--force"
-	delete_ids $COMMAND $IDS $EXTRA_PARAM
+	delete_force_ids $COMMAND $IDS
 }
 
 # Delete share-group-snapshots
@@ -159,8 +171,7 @@ delete_group_snapshots () {
 	fi
 
 	COMMAND="share-group-snapshot-delete"
-	EXTRA_PARAM="--force"
-	delete_ids $COMMAND $IDS $EXTRA_PARAM
+	delete_force_ids $COMMAND $IDS
 }
 
 # Delete share-group-types
