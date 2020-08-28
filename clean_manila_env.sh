@@ -216,8 +216,29 @@ delete_replicas () {
 	echo "Skipped, it should be deleted manually!"
 }
 
-##### Main ####
 
+
+###################################### Main ############################
+
+if [ "$1" = "-h" ]; then
+	echo "bash $0 <delete_resource>,<delete_resource>,.. [<ignore_id>,<ignore_id>,...]" 
+
+	echo "Mandatory parameter:"
+	echo -e "<delete_resource>\tThe resource name to be deleted. It can be:"
+	echo -e "\t\t\treplica snapshot share group server network security and type"
+	echo -e "\t\t\tPassing as 'all' means delete all resources.\n"
+	
+	echo "Optional parameter:"
+	echo -e "<ignore_id>:\t\tThe given id is not deleted no matter from which resource."
+	exit 0
+elif [ -z "$1" ]; then
+	echo "Wrong execution. Run with -h to help."
+	exit 1
+fi
+
+DELETE_PARAM="$1"
+IGNORE_IDS_PARAM="$2"
+	
 # The order for removing must follow:
 #   0. Replicas
 #   1. Snapshots (share/share-group)
@@ -229,13 +250,42 @@ delete_replicas () {
 #   5. Security services
 #   6. Types
 
-delete_replicas $1
-delete_snapshots $1
-delete_group_snapshots $1
-delete_shares $1
-delete_groups $1
-delete_group_types $1
-delete_servers $1
-delete_networks $1
-delete_security_services $1
-delete_types $1
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"replica"*  ]]; then
+	delete_replicas $IGNORE_IDS_PARAM
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"snapshot"*  ]]; then
+	delete_snapshots $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"group"*  ]]; then
+	delete_group_snapshots $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"share"*  ]]; then
+	delete_shares $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"group"*  ]]; then
+	delete_groups $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"group"*  ]]; then
+	delete_group_types $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"server"*  ]]; then
+	delete_servers $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"network"*  ]]; then
+	delete_networks $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"security"*  ]]; then
+	delete_security_services $2
+fi
+
+if [[ $DELETE_PARAM == "all" || $DELETE_PARAM == *"type"*  ]]; then
+	delete_types $2
+fi
